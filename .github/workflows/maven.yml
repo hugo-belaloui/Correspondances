@@ -20,7 +20,7 @@ on:
       - "backend"
       - "backend/**"
     paths:
-      - 'backend/**'
+      - 'src/**'
 
 jobs:
   build:
@@ -28,7 +28,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: backend
+        working-directory: src
 
     steps:
     - uses: actions/checkout@v4
@@ -39,7 +39,7 @@ jobs:
         java-version: '25'
         distribution: 'temurin'
         cache: maven
-        cache-dependency-path: backend/pom.xml
+        cache-dependency-path: src/pom.xml
 
     - name: Build with Maven
       run: mvn -B package
