@@ -35,3 +35,9 @@ From `src/`:
 
 The application starts on port 8080. 
 To check it is connected to the database, open http://localhost:8080/actuator/health: it should return `"status":"UP"`.
+
+### 4. Endpoints
+
+Swagger endpoints : http://localhost:8080/swagger-ui/index.html
+
+JSON OpenAPI spec : http://localhost:8080/v3/api-docs
