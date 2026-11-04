@@ -1,5 +1,3 @@
--- V1: initial schema, matches the MPD in docs/MERISE.svg
-
 CREATE TYPE seat_class AS ENUM ('FIRST', 'SECOND');
 CREATE TYPE traveler_profile AS ENUM ('FULL_PRICE', 'YOUNG', 'SENIOR', 'SUBSCRIBER');
 CREATE TYPE journey_schedule AS ENUM ('EVERY_DAY', 'WEEKDAYS', 'WEEKEND', 'SPECIAL_DAYS');
