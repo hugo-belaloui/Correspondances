@@ -15,12 +15,12 @@ In your SQL CLI or UI, connected to the default `postgres` database, run:
 CREATE DATABASE correspondances;
 ```
 
-Run the whole content of `db/init-db.sql`.  
+Connected to the `correspondances` database, run the whole content of `db/init-db.sql`.  
 It creates 3 enum types and 9 tables.
 
 ### 2. Set your credentials
 
-Copy `.env.example` into `/src` as `.env
+Copy `.env.example` into `/src` as `.env`
 
 Then fill in your own `DB_USER` and `DB_PASSWORD` in `src/.env`.  
 This file is ignored by git: never commit it.
