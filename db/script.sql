@@ -74,19 +74,23 @@ WITH all_stops (line_name, station_name, position, distance) AS
         ('L12: Toulon - Les Arcs Draguignan', 'Les Arcs Draguignan', 2, NULL)
 )
 
-INSERT INTO line_stop (line, station, position_on_line, _distance_from_next)
-SELECT 
+INSERT INTO line_stop (line, station, position_on_line, _distance_from_next) SELECT 
     l.line_number, --line_id
     s.station_id,
     a.position,
     a.distance,
-FROM all_stops a
-JOIN line l ON l.name = a.line_name
-JOIN station s ON s.name = a.station_name;
+FROM all_stops a JOIN line l ON l.name = a.line_name JOIN station s ON s.name = a.station_name;
 --always read FROM first
 
 --trains 
-INSERT into train (avg_speed_kmh) SELECT 140.00 + ((v % 5)*10.00)
-FROM generate_series(1,20) as v;
+INSERT into train (avg_speed_kmh) SELECT 140.00 + ((v % 5)*10.00) FROM generate_series(1,20) as v;
+
+--wagon
+INSERT INTO wagon (train) SELECT t.train_number FROM train AS t CROSS JOIN generate_series(1,4) AS w;
+-- should randomize later
+
+
+
+
 
 
