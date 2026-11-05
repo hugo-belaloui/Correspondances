@@ -83,6 +83,10 @@ SELECT
 FROM all_stops a
 JOIN line l ON l.name = a.line_name
 JOIN station s ON s.name = a.station_name;
+--always read FROM first
 
+--trains 
+INSERT into train (avg_speed_kmh) SELECT 140.00 + ((v % 5)*10.00)
+FROM generate_series(1,20) as v;
 
 
