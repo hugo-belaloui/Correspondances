@@ -22,6 +22,7 @@ public class FareController {
 		this.fareService = fareService;
 	}
 
+	@GetMapping
 	public List<FareDto> findValidOn(
 			@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
 		return fareService.findValidOn(date);
