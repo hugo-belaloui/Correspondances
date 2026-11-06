@@ -1,7 +1,7 @@
 -- Generation en cascade, d'abord les stations et line puis le tracé avec line_stop
 
 
-
+BEGIN;
 
 
 INSERT INTO station (name) values ('Marseille-Saint-Charles'), ('Aix-en-Provence Centre'), ('Aix-en-Provence TGV'), ('Aubagne'), ('La Ciotat'), ('Toulon'), ('Hyeres'), ('Les Arcs Draguignan'),('Saint-Raphael Valescure'), ('Cannes'), ('Antibes'), ('Nice-Ville'), ('Monaco-Monte-Carlo'), ('Menton'), ('Ventimiglia'), ('Avignon Centre'), ('Avignon TGV'), ('Arles'), ('Miramas'), ('Salon-de-Provence'), ('Cavaillon'), ('Orange'), ('Carpentras'), ('Pertuis'), ('Manosque-Greoux'), ('Sisteron'), ('Gap'), ('Briancon'), ('Digne-les-Bains'), ('Grasse');
@@ -73,11 +73,11 @@ WITH all_stops (line_name, station_name, position, distance) AS
         ('L12: Toulon - Les Arcs Draguignan', 'Toulon',               1, 69.0),
         ('L12: Toulon - Les Arcs Draguignan', 'Les Arcs Draguignan', 2, NULL)
 )
-INSERT INTO line_stop (line, station, position_on_line, _distance_from_next) SELECT 
+INSERT INTO line_stop (line, station, position_on_line, distance_from_next) SELECT 
     l.line_number, --line_id
     s.station_id,
     a.position,
-    a.distance,
+    a.distance
 FROM all_stops a JOIN line l ON l.name = a.line_name JOIN station s ON s.name = a.station_name;
 --always read FROM first
 
@@ -93,7 +93,7 @@ INSERT INTO wagon (train) SELECT t.train_number FROM train AS t CROSS JOIN gener
 WITH numbered_wagons AS (SELECT w.wagon_number, ROW_NUMBER() OVER (PARTITION BY w.train) AS wagon_position FROM wagon as w) INSERT INTO seat (wagon, class) SELECT nw.wagon_number, CASE WHEN nw.wagon_position = 1 then 'FIRST'::seat_class ELSE 'SECOND'::seat_class END FROM numbered_wagons as nw CROSS JOIN generate_series(1, 40) as s;
 
 --journey
-WITH train_pool AS ( SELECT train_number, ROW() OVER() AS t_num FROM train) , line_pool AS (SELECT line_number, name FROM line) INSERT INTO journey (train, line, departure_time, stop_time_minutes, default_direction,is_direct, schedule) VALUES 
+WITH train_pool AS ( SELECT train_number, ROW_NUMBER() OVER (ORDER BY train_number) AS t_num FROM train) , line_pool AS (SELECT line_number, name FROM line) INSERT INTO journey (train, line, departure_time, stop_time_minutes, default_direction,is_direct, schedule) VALUES 
 --L1
 ((SELECT train_number FROM train_pool WHERE t_num = 1),  (SELECT line_number FROM line_pool WHERE name = 'L01: Marseille - Nice'), '2026-01-01 06:30:00', 3, TRUE, FALSE, 'WEEKDAYS'),
     ((SELECT train_number FROM train_pool WHERE t_num = 2),  (SELECT line_number FROM line_pool WHERE name = 'L01: Marseille - Nice'), '2026-01-01 08:30:00', 3, TRUE, FALSE, 'EVERY_DAY'),
@@ -118,8 +118,10 @@ WITH train_pool AS ( SELECT train_number, ROW() OVER() AS t_num FROM train) , li
 
 --traveler 
 
-INSERT INTO traveler (profile, first_name, last_name, email) SELECT CASE (g * % 4) WHEN 0 THEN 'FULL_PRICE'::traveler_profile WHEN 1 THEN 'YOUNG'::traveler_profile WHEN 2 THEN 'SENIOR'::traveler_profile ELSE 'SUBSCRIBER'::traveler_profile END, 'prenom' || g, 'nom' || g, 'traveler' || g || 'jondoe@mail.com' FROM generate_series(1, 5000) AS g;
+INSERT INTO traveler (profile, first_name, last_name, email) SELECT CASE (g  % 4) WHEN 0 THEN 'FULL_PRICE'::traveler_profile WHEN 1 THEN 'YOUNG'::traveler_profile WHEN 2 THEN 'SENIOR'::traveler_profile ELSE 'SUBSCRIBER'::traveler_profile END, 'prenom' || g, 'nom' || g, 'traveler' || g || 'jondoe@mail.com' FROM generate_series(1, 5000) AS g;
 
 
 
 
+
+COMMIT;
