@@ -41,3 +41,11 @@ To check it is connected to the database, open http://localhost:8080/actuator/he
 Swagger endpoints : http://localhost:8080/swagger-ui/index.html
 
 JSON OpenAPI spec : http://localhost:8080/v3/api-docs
+
+| Method | URL | Description |
+|---|---|---|
+| GET | `/stations` | All stations, sorted by name |
+| GET | `/stations/{stationId}/lines` | Lines serving a station |
+| GET | `/lines/{lineNumber}/stops` | Stops of a line, in order |
+| GET | `/journeys?lineNumber={lineNumber}&date={yyyy-MM-dd}` | Journeys of a line running on a date |
+| GET | `/travelers/{travelerId}/reservations` | Reservations of a traveler, latest first |
