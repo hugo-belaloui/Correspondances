@@ -15,16 +15,26 @@ In your SQL CLI or UI, connected to the default `postgres` database, run:
 CREATE DATABASE correspondances;
 ```
 
-The tables are created by Flyway when the application starts.
+Then, connected to the `correspondances` database, run the whole content of `src/src/main/resources/db/migration/V1__init_schema.sql`. Do not start the application before step 3.
 
-### 2. Set your credentials
+### 2. Fill the database (V1)
+
+From the repository root:
+
+```
+psql -h localhost -U postgres -d correspondances -f db/script.sql
+```
+
+It ends with `INSERT 0 500000` and `COMMIT`. The generator is written for the V1 schema: run it before the migration.
+
+### 3. Set your credentials
 
 Copy `.env.example` into `/src` as `.env`
 
 Then fill in your own `DB_USER` and `DB_PASSWORD` in `src/.env`.  
 This file is ignored by git: never commit it.
 
-### 3. Run the application
+### 4. Run the application (migration to V2)
 
 From `src/`:
 
@@ -32,10 +42,11 @@ From `src/`:
 ./mvnw spring-boot:run
 ```
 
+On startup, Flyway marks the database as V1 (baseline) and migrates it to V2 (see [Database migrations](#database-migrations)).
 The application starts on port 8080. 
 To check it is connected to the database, open http://localhost:8080/actuator/health: it should return `"status":"UP"`.
 
-### 4. Endpoints
+### 5. Endpoints
 
 Swagger endpoints : http://localhost:8080/swagger-ui/index.html
 
@@ -50,14 +61,6 @@ JSON OpenAPI spec : http://localhost:8080/v3/api-docs
 | GET | `/travelers/{travelerId}/reservations` | Reservations of a traveler, latest first |
 | GET | `/fares?date={yyyy-MM-dd}` | Fares valid on a date (since V2) |
 
-## Data generator
-
-```
-psql -h localhost -U postgres -d correspondances -f db/script.sql
-```
-
-It ends with `INSERT 0 500000` and `COMMIT`.
-
 ## Database migrations
 
 The schema is versioned with Flyway. Migrations live in `src/src/main/resources/db/migration/` and run automatically when the application starts. Applied versions are recorded in the `flyway_schema_history` table.
@@ -66,7 +69,7 @@ The schema is versioned with Flyway. Migrations live in `src/src/main/resources/
 
 On your machine, just start the application:
 - **Empty database**: Flyway runs V1 and creates the 3 enum types and 9 tables.
-- **Database already created with `init-db.sql`**: Flyway does not run V1, it marks the database as version 1 (baseline). Your data is kept.
+- **Database already created with `V1__init_schema.sql`** (quick start) or the former `init-db.sql`: Flyway does not run V1, it marks the database as version 1 (baseline). Your data is kept.
 
 To check, run `SELECT version, description, type FROM flyway_schema_history;`: you should get version `1`, either `init schema` (type `SQL`) or `<< Flyway Baseline >>` (type `BASELINE`).
 
