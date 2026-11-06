@@ -126,6 +126,27 @@ CREATE TEMP TABLE temp_active_runs AS
 WITH calendar AS (SELECT d::date AS run_date FROM generate_series( '2026-01-01'::date, '2026-12-31'::date,'1 day'::interval ) AS d) SELECT j.journey_number, j.train, j.line, (c.run_date + j.departure_time::time) AS exact_departure, c.run_date, EXTRACT(ISODOW FROM c.run_date) AS day_of_week FROM calendar c CROSS JOIN journey j WHERE (j.schedule = 'EVERY_DAY') OR (j.schedule = 'WEEKDAYS' AND EXTRACT(ISODOW FROM c.run_date) BETWEEN 1 AND 5) OR (j.schedule = 'WEEKEND'  AND EXTRACT(ISODOW FROM c.run_date) IN (6, 7));
 
 
+DROP TABLE IF EXISTS temp_valid_segments; 
 
+CREATE TEMP TABLE temp_valid_segments AS SELECT ls1.line, ls1.station AS dep_station, ls2.station AS arr_station, (ls2.position_on_line - ls1.position_on_line) AS stops_count, ROW_NUMBER() OVER (PARTITION BY ls1.line ORDER BY ls1.position_on_line, ls2.position_on_line) AS seg_num FROM line_stop ls1 JOIN line_stop ls2 ON ls1.line = ls2.line AND ls1.position_on_line < ls2.position_on_line;
+
+DROP TABLE IF EXISTS temp_indexed_runs; 
+
+CREATE TEMP TABLE temp_indexed_runs AS SELECT  journey_number, train, line, exact_departure, ROW_NUMBER() OVER () AS run_idx FROM temp_active_runs;
+
+DROP TABLE IF EXISTS temp_indexed_seats;
+
+CREATE TEMP TABLE temp_indexed_seats AS SELECT s.seat_number, w.train, ROW_NUMBER() OVER (PARTITION BY w.train ORDER BY s.seat_number) AS seat_idx FROM seat s JOIN wagon w ON s.wagon = w.wagon_number;
+
+DROP TABLE IF EXISTS temp_indexed_travelers;
+
+CREATE TEMP TABLE temp_indexed_travelers AS SELECT  traveler_id, ROW_NUMBER() OVER () AS traveler_idx FROM traveler;
+
+INSERT INTO reservation ( journey, traveler, price_cents, departure_station, arrival_station, reserved_at, travel_time_minutes, seat, departure_datetime
+) WITH raw_series AS ( SELECT g AS res_id FROM generate_series(1, 500000) AS g),
+matched_reservations AS (
+SELECT  r.journey_number, r.exact_departure, r.train, r.line, ((s.res_id % 160) + 1) AS target_seat_idx, ((s.res_id %5000) + 1) AS target_traveler_idx, s.res_id FROM raw_series s JOIN temp_indexed_runs r      ON r.run_idx = ((s.res_id %(SELECT count(*) FROM temp_indexed_runs)) + 1)) SELECT  mr.journey_number, t.traveler_id, (1000 + (seg.stops_count * 500)) AS price_cents, seg.dep_station, seg.arr_station, (mr.exact_departure - ((1 + (mr.res_id % 20)) || ' days')::interval) AS reserved_at, (seg.stops_count * 25) AS travel_time_minutes, st.seat_number, mr.exact_departure FROM matched_reservations mr JOIN temp_indexed_seats st  ON st.train = mr.train  AND st.seat_idx = mr.target_seat_idx JOIN temp_indexed_travelers t  ON t.traveler_idx = mr.target_traveler_idx JOIN temp_valid_segments seg  ON seg.line = mr.line  AND seg.seg_num = 1; 
 
 COMMIT;
+
+
