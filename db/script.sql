@@ -120,6 +120,10 @@ WITH train_pool AS ( SELECT train_number, ROW_NUMBER() OVER (ORDER BY train_numb
 
 INSERT INTO traveler (profile, first_name, last_name, email) SELECT CASE (g  % 4) WHEN 0 THEN 'FULL_PRICE'::traveler_profile WHEN 1 THEN 'YOUNG'::traveler_profile WHEN 2 THEN 'SENIOR'::traveler_profile ELSE 'SUBSCRIBER'::traveler_profile END, 'prenom' || g, 'nom' || g, 'traveler' || g || 'jondoe@mail.com' FROM generate_series(1, 5000) AS g;
 
+DROP TABLE IF EXISTS temp_active_runs;
+
+CREATE TEMP TABLE temp_active_runs AS
+WITH calendar AS (SELECT d::date AS run_date FROM generate_series( '2026-01-01'::date, '2026-12-31'::date,'1 day'::interval ) AS d) SELECT j.journey_number, j.train, j.line, (c.run_date + j.departure_time::time) AS exact_departure, c.run_date, EXTRACT(ISODOW FROM c.run_date) AS day_of_week FROM calendar c CROSS JOIN journey j WHERE (j.schedule = 'EVERY_DAY') OR (j.schedule = 'WEEKDAYS' AND EXTRACT(ISODOW FROM c.run_date) BETWEEN 1 AND 5) OR (j.schedule = 'WEEKEND'  AND EXTRACT(ISODOW FROM c.run_date) IN (6, 7));
 
 
 
