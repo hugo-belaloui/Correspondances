@@ -92,6 +92,33 @@ INSERT INTO wagon (train) SELECT t.train_number FROM train AS t CROSS JOIN gener
 
 WITH numbered_wagons AS (SELECT w.wagon_number, ROW_NUMBER() OVER (PARTITION BY w.train) AS wagon_position FROM wagon as w) INSERT INTO seat (wagon, class) SELECT nw.wagon_number, CASE WHEN nw.wagon_position = 1 then 'FIRST'::seat_class ELSE 'SECOND'::seat_class END FROM numbered_wagons as nw CROSS JOIN generate_series(1, 40) as s;
 
+--journey
+WITH train_pool AS ( SELECT train_number, ROW() OVER() AS t_num FROM train) , line_pool AS (SELECT line_number, name FROM line) INSERT INTO journey (train, line, departure_time, stop_time_minutes, default_direction,is_direct, schedule) VALUES 
+--L1
+((SELECT train_number FROM train_pool WHERE t_num = 1),  (SELECT line_number FROM line_pool WHERE name = 'L01: Marseille - Nice'), '2026-01-01 06:30:00', 3, TRUE, FALSE, 'WEEKDAYS'),
+    ((SELECT train_number FROM train_pool WHERE t_num = 2),  (SELECT line_number FROM line_pool WHERE name = 'L01: Marseille - Nice'), '2026-01-01 08:30:00', 3, TRUE, FALSE, 'EVERY_DAY'),
+    ((SELECT train_number FROM train_pool WHERE t_num = 3),  (SELECT line_number FROM line_pool WHERE name = 'L01: Marseille - Nice'), '2026-01-01 12:30:00', 3, TRUE, FALSE, 'EVERY_DAY'),
+    ((SELECT train_number FROM train_pool WHERE t_num = 4),  (SELECT line_number FROM line_pool WHERE name = 'L01: Marseille - Nice'), '2026-01-01 17:30:00', 3, TRUE, FALSE, 'WEEKDAYS'),
+    ((SELECT train_number FROM train_pool WHERE t_num = 5),  (SELECT line_number FROM line_pool WHERE name = 'L02: Nice - Ventimiglia'), '2026-01-01 07:15:00', 2, TRUE, FALSE, 'EVERY_DAY'),
+    ((SELECT train_number FROM train_pool WHERE t_num = 6),  (SELECT line_number FROM line_pool WHERE name = 'L02: Nice - Ventimiglia'), '2026-01-01 18:15:00', 2, TRUE, FALSE, 'EVERY_DAY'),
+    ((SELECT train_number FROM train_pool WHERE t_num = 7),  (SELECT line_number FROM line_pool WHERE name = 'L03: Marseille - Avignon via Arles'), '2026-01-01 07:00:00', 3, TRUE, FALSE, 'WEEKDAYS'),
+    ((SELECT train_number FROM train_pool WHERE t_num = 8),  (SELECT line_number FROM line_pool WHERE name = 'L03: Marseille - Avignon via Arles'), '2026-01-01 17:00:00', 3, TRUE, FALSE, 'WEEKDAYS'),
+    ((SELECT train_number FROM train_pool WHERE t_num = 9),  (SELECT line_number FROM line_pool WHERE name = 'L04: Marseille - Avignon via Cavaillon'), '2026-01-01 08:00:00', 2, TRUE, FALSE, 'WEEKEND'),
+    ((SELECT train_number FROM train_pool WHERE t_num = 10), (SELECT line_number FROM line_pool WHERE name = 'L05: Marseille - Aix-en-Provence - Pertuis'), '2026-01-01 07:45:00', 2, TRUE, FALSE, 'WEEKDAYS'),
+    ((SELECT train_number FROM train_pool WHERE t_num = 11), (SELECT line_number FROM line_pool WHERE name = 'L05: Marseille - Aix-en-Provence - Pertuis'), '2026-01-01 18:00:00', 2, TRUE, FALSE, 'WEEKDAYS'),
+    ((SELECT train_number FROM train_pool WHERE t_num = 12), (SELECT line_number FROM line_pool WHERE name = 'L06: Marseille - Toulon - Hyeres'), '2026-01-01 06:45:00', 2, TRUE, FALSE, 'WEEKDAYS'),
+    ((SELECT train_number FROM train_pool WHERE t_num = 13), (SELECT line_number FROM line_pool WHERE name = 'L06: Marseille - Toulon - Hyeres'), '2026-01-01 16:45:00', 2, TRUE, FALSE, 'WEEKDAYS'),
+    ((SELECT train_number FROM train_pool WHERE t_num = 14), (SELECT line_number FROM line_pool WHERE name = 'L07: Cannes - Grasse'), '2026-01-01 08:10:00', 2, TRUE, FALSE, 'EVERY_DAY'),
+    ((SELECT train_number FROM train_pool WHERE t_num = 15), (SELECT line_number FROM line_pool WHERE name = 'L08: Avignon - Carpentras'), '2026-01-01 07:30:00', 2, TRUE, FALSE, 'WEEKDAYS'),
+    ((SELECT train_number FROM train_pool WHERE t_num = 16), (SELECT line_number FROM line_pool WHERE name = 'L09: Marseille - Briancon via Gap'), '2026-01-01 06:10:00', 4, TRUE, FALSE, 'EVERY_DAY'),
+    ((SELECT train_number FROM train_pool WHERE t_num = 17), (SELECT line_number FROM line_pool WHERE name = 'L09: Marseille - Briancon via Gap'), '2026-01-01 14:10:00', 4, TRUE, FALSE, 'WEEKEND'),
+    ((SELECT train_number FROM train_pool WHERE t_num = 18), (SELECT line_number FROM line_pool WHERE name = 'L10: Avignon - Orange'), '2026-01-01 09:00:00', 2, TRUE, FALSE, 'WEEKDAYS'),
+    ((SELECT train_number FROM train_pool WHERE t_num = 19), (SELECT line_number FROM line_pool WHERE name = 'L11: Miramas - Marseille via Côte Bleue'), '2026-01-01 10:15:00', 3, TRUE, FALSE, 'WEEKEND'),
+    ((SELECT train_number FROM train_pool WHERE t_num = 20), (SELECT line_number FROM line_pool WHERE name = 'L12: Toulon - Les Arcs Draguignan'), '2026-01-01 11:30:00', 2, TRUE, FALSE, 'EVERY_DAY');
+
+--traveler 
+
+
 
 
 
