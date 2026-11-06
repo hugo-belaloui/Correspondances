@@ -57,6 +57,10 @@ public class Reservation {
 	@Column(name = "departure_datetime", nullable = false)
 	private LocalDateTime departureDatetime;
 
+	@ManyToOne(fetch = FetchType.LAZY, optional = false)
+	@JoinColumn(name = "fare", nullable = false)
+	private Fare fare;
+
 	protected Reservation() {
 	}
 
@@ -130,5 +134,13 @@ public class Reservation {
 
 	public void setDepartureDatetime(LocalDateTime departureDatetime) {
 		this.departureDatetime = departureDatetime;
+	}
+
+	public Fare getFare() {
+		return fare;
+	}
+
+	public void setFare(Fare fare) {
+		this.fare = fare;
 	}
 }
