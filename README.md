@@ -15,8 +15,7 @@ In your SQL CLI or UI, connected to the default `postgres` database, run:
 CREATE DATABASE correspondances;
 ```
 
-Connected to the `correspondances` database, run the whole content of `db/init-db.sql`.  
-It creates 3 enum types and 9 tables.
+The tables are created by Flyway when the application starts.
 
 ### 2. Set your credentials
 
@@ -49,3 +48,17 @@ JSON OpenAPI spec : http://localhost:8080/v3/api-docs
 | GET | `/lines/{lineNumber}/stops` | Stops of a line, in order |
 | GET | `/journeys?lineNumber={lineNumber}&date={yyyy-MM-dd}` | Journeys of a line running on a date |
 | GET | `/travelers/{travelerId}/reservations` | Reservations of a traveler, latest first |
+
+## Database migrations
+
+The schema is versioned with Flyway. Migrations live in `src/src/main/resources/db/migration/` and run automatically when the application starts. Applied versions are recorded in the `flyway_schema_history` table.
+
+### V1: initial schema (baseline)
+
+On your machine, just start the application:
+- **Empty database**: Flyway runs V1 and creates the 3 enum types and 9 tables.
+- **Database already created with `init-db.sql`**: Flyway does not run V1, it marks the database as version 1 (baseline). Your data is kept.
+
+To check, run `SELECT version, description, type FROM flyway_schema_history;`: you should get version `1`, either `init schema` (type `SQL`) or `<< Flyway Baseline >>` (type `BASELINE`).
+
+Never edit a migration that has been applied: Flyway checks their checksum and refuses to start. Fix with a new version instead.
