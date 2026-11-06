@@ -73,7 +73,6 @@ WITH all_stops (line_name, station_name, position, distance) AS
         ('L12: Toulon - Les Arcs Draguignan', 'Toulon',               1, 69.0),
         ('L12: Toulon - Les Arcs Draguignan', 'Les Arcs Draguignan', 2, NULL)
 )
-
 INSERT INTO line_stop (line, station, position_on_line, _distance_from_next) SELECT 
     l.line_number, --line_id
     s.station_id,
@@ -88,6 +87,10 @@ INSERT into train (avg_speed_kmh) SELECT 140.00 + ((v % 5)*10.00) FROM generate_
 --wagon
 INSERT INTO wagon (train) SELECT t.train_number FROM train AS t CROSS JOIN generate_series(1,4) AS w;
 -- should randomize later
+
+--seat 
+
+WITH numbered_wagons AS (SELECT w.wagon_number, ROW_NUMBER() OVER (PARTITION BY w.train) AS wagon_position FROM wagon as w) INSERT INTO seat (wagon, class) SELECT nw.wagon_number, CASE WHEN nw.wagon_position = 1 then 'FIRST'::seat_class ELSE 'SECOND'::seat_class END FROM numbered_wagons as nw CROSS JOIN generate_series(1, 40) as s;
 
 
 
