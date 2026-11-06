@@ -13,7 +13,6 @@ CREATE TABLE fare (
 	valid_to DATE,
 	CONSTRAINT ck_fare_price CHECK (price_per_km_cents > 0),
 	CONSTRAINT ck_fare_period CHECK (valid_to IS NULL OR valid_to > valid_from),
-	-- Two fares of the same class and profile cannot be valid on the same day
 	CONSTRAINT ex_fare_period_overlap EXCLUDE USING gist (
 		seat_class WITH =,
 		profile WITH =,
@@ -21,27 +20,27 @@ CREATE TABLE fare (
 	)
 );
 
--- Legacy fares 2025
+-- Legacy fares: every sale before the grid
 INSERT INTO fare (seat_class, profile, price_per_km_cents, valid_from, valid_to) VALUES
-	('FIRST', 'FULL_PRICE', NULL, '2025-01-01', '2026-01-01'),
-	('FIRST', 'YOUNG', NULL, '2025-01-01', '2026-01-01'),
-	('FIRST', 'SENIOR', NULL, '2025-01-01', '2026-01-01'),
-	('FIRST', 'SUBSCRIBER', NULL, '2025-01-01', '2026-01-01'),
-	('SECOND', 'FULL_PRICE', NULL, '2025-01-01', '2026-01-01'),
-	('SECOND', 'YOUNG', NULL, '2025-01-01', '2026-01-01'),
-	('SECOND', 'SENIOR', NULL, '2025-01-01', '2026-01-01'),
-	('SECOND', 'SUBSCRIBER', NULL, '2025-01-01', '2026-01-01');
+	('FIRST', 'FULL_PRICE', NULL, '2025-01-01', '2027-01-01'),
+	('FIRST', 'YOUNG', NULL, '2025-01-01', '2027-01-01'),
+	('FIRST', 'SENIOR', NULL, '2025-01-01', '2027-01-01'),
+	('FIRST', 'SUBSCRIBER', NULL, '2025-01-01', '2027-01-01'),
+	('SECOND', 'FULL_PRICE', NULL, '2025-01-01', '2027-01-01'),
+	('SECOND', 'YOUNG', NULL, '2025-01-01', '2027-01-01'),
+	('SECOND', 'SENIOR', NULL, '2025-01-01', '2027-01-01'),
+	('SECOND', 'SUBSCRIBER', NULL, '2025-01-01', '2027-01-01');
 
--- New 2026 fare grid
+-- New fare grid, for sales from 2027
 INSERT INTO fare (seat_class, profile, price_per_km_cents, valid_from) VALUES
-	('FIRST', 'FULL_PRICE', 20.00, '2026-01-01'),
-	('FIRST', 'YOUNG', 14.00, '2026-01-01'),
-	('FIRST', 'SENIOR', 15.00, '2026-01-01'),
-	('FIRST', 'SUBSCRIBER', 10.00, '2026-01-01'),
-	('SECOND', 'FULL_PRICE', 12.00, '2026-01-01'),
-	('SECOND', 'YOUNG', 8.40, '2026-01-01'),
-	('SECOND', 'SENIOR', 9.00, '2026-01-01'),
-	('SECOND', 'SUBSCRIBER', 6.00, '2026-01-01');
+	('FIRST', 'FULL_PRICE', 20.00, '2027-01-01'),
+	('FIRST', 'YOUNG', 14.00, '2027-01-01'),
+	('FIRST', 'SENIOR', 15.00, '2027-01-01'),
+	('FIRST', 'SUBSCRIBER', 10.00, '2027-01-01'),
+	('SECOND', 'FULL_PRICE', 12.00, '2027-01-01'),
+	('SECOND', 'YOUNG', 8.40, '2027-01-01'),
+	('SECOND', 'SENIOR', 9.00, '2027-01-01'),
+	('SECOND', 'SUBSCRIBER', 6.00, '2027-01-01');
 
 -- Link every existing reservation to the fare in force when it was booked.
 ALTER TABLE reservation ADD COLUMN fare UUID;

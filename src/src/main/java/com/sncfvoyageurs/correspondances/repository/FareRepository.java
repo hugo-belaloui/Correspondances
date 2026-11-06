@@ -12,7 +12,6 @@ import com.sncfvoyageurs.correspondances.model.Fare;
 
 public interface FareRepository extends JpaRepository<Fare, UUID> {
 
-	// validTo is excluded: a fare closed on 2026-01-01 is no longer valid that day
 	@Query("""
 			SELECT f FROM Fare f
 			WHERE f.validFrom <= :date AND (f.validTo IS NULL OR f.validTo > :date)

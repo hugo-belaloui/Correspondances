@@ -50,6 +50,14 @@ JSON OpenAPI spec : http://localhost:8080/v3/api-docs
 | GET | `/travelers/{travelerId}/reservations` | Reservations of a traveler, latest first |
 | GET | `/fares?date={yyyy-MM-dd}` | Fares valid on a date (since V2) |
 
+## Data generator
+
+```
+psql -h localhost -U postgres -d correspondances -f db/script.sql
+```
+
+It ends with `INSERT 0 500000` and `COMMIT`.
+
 ## Database migrations
 
 The schema is versioned with Flyway. Migrations live in `src/src/main/resources/db/migration/` and run automatically when the application starts. Applied versions are recorded in the `flyway_schema_history` table.
@@ -67,9 +75,9 @@ Never edit a migration that has been applied: Flyway checks their checksum and r
 ### V2: fare history
 
 - New `fare` table: a price per km for a class and a profile, valid from `valid_from` to `valid_to` (`NULL` = current).
-- Legacy fares cover 2025, before any fare grid existed: their price is `NULL`, the amount paid stays in `reservation.price_cents`. The new fare grid starts on 2026-01-01.
+- Legacy fares cover every sale before 2027, when no fare grid existed: their price is `NULL`, the amount paid stays in `reservation.price_cents`. The new fare grid starts on 2027-01-01.
 - New `reservation.fare` column: the fare applied when the reservation was booked. `price_cents` is unchanged.
 
 Start the application: Flyway applies V2 automatically. `flyway_schema_history` should then show version `2`.
 
-To check in Swagger: `GET /fares?date=2025-03-03` returns the 8 legacy fares (no price), `GET /fares?date=2026-03-03` returns the 8 fares of the 2026 grid. Before V2, this route does not exist.
+To check in Swagger: `GET /fares?date=2026-03-03` returns the 8 legacy fares (no price), `GET /fares?date=2027-03-03` returns the 8 fares of the new grid. Before V2, this route does not exist.
