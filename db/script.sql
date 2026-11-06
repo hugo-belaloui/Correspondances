@@ -118,8 +118,7 @@ WITH train_pool AS ( SELECT train_number, ROW() OVER() AS t_num FROM train) , li
 
 --traveler 
 
-
-
+INSERT INTO traveler (profile, first_name, last_name, email) SELECT CASE (g * % 4) WHEN 0 THEN 'FULL_PRICE'::traveler_profile WHEN 1 THEN 'YOUNG'::traveler_profile WHEN 2 THEN 'SENIOR'::traveler_profile ELSE 'SUBSCRIBER'::traveler_profile END, 'prenom' || g, 'nom' || g, 'traveler' || g || 'jondoe@mail.com' FROM generate_series(1, 5000) AS g;
 
 
 
