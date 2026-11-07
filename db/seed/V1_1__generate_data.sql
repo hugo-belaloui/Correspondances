@@ -1,7 +1,6 @@
 -- Generation en cascade, d'abord les stations et line puis le tracé avec line_stop
 
-
-BEGIN;
+-- No BEGIN/COMMIT: Flyway runs each migration in its own transaction (psql: use the -1 option)
 
 
 INSERT INTO station (name) values ('Marseille-Saint-Charles'), ('Aix-en-Provence Centre'), ('Aix-en-Provence TGV'), ('Aubagne'), ('La Ciotat'), ('Toulon'), ('Hyeres'), ('Les Arcs Draguignan'),('Saint-Raphael Valescure'), ('Cannes'), ('Antibes'), ('Nice-Ville'), ('Monaco-Monte-Carlo'), ('Menton'), ('Ventimiglia'), ('Avignon Centre'), ('Avignon TGV'), ('Arles'), ('Miramas'), ('Salon-de-Provence'), ('Cavaillon'), ('Orange'), ('Carpentras'), ('Pertuis'), ('Manosque-Greoux'), ('Sisteron'), ('Gap'), ('Briancon'), ('Digne-les-Bains'), ('Grasse');
@@ -145,8 +144,6 @@ CREATE TEMP TABLE temp_indexed_travelers AS SELECT  traveler_id, ROW_NUMBER() OV
 INSERT INTO reservation ( journey, traveler, price_cents, departure_station, arrival_station, reserved_at, travel_time_minutes, seat, departure_datetime
 ) WITH raw_series AS ( SELECT g AS res_id FROM generate_series(1, 500000) AS g),
 matched_reservations AS (
-SELECT  r.journey_number, r.exact_departure, r.train, r.line, ((s.res_id % 160) + 1) AS target_seat_idx, ((s.res_id %5000) + 1) AS target_traveler_idx, s.res_id FROM raw_series s JOIN temp_indexed_runs r      ON r.run_idx = ((s.res_id %(SELECT count(*) FROM temp_indexed_runs)) + 1)) SELECT  mr.journey_number, t.traveler_id, (1000 + (seg.stops_count * 500)) AS price_cents, seg.dep_station, seg.arr_station, (mr.exact_departure - ((1 + (mr.res_id % 20)) || ' days')::interval) AS reserved_at, (seg.stops_count * 25) AS travel_time_minutes, st.seat_number, mr.exact_departure FROM matched_reservations mr JOIN temp_indexed_seats st  ON st.train = mr.train  AND st.seat_idx = mr.target_seat_idx JOIN temp_indexed_travelers t  ON t.traveler_idx = mr.target_traveler_idx JOIN temp_valid_segments seg  ON seg.line = mr.line  AND seg.seg_num = 1; 
-
-COMMIT;
+SELECT  r.journey_number, r.exact_departure, r.train, r.line, ((s.res_id % 160) + 1) AS target_seat_idx, ((s.res_id %5000) + 1) AS target_traveler_idx, s.res_id FROM raw_series s JOIN temp_indexed_runs r      ON r.run_idx = ((s.res_id %(SELECT count(*) FROM temp_indexed_runs)) + 1)) SELECT  mr.journey_number, t.traveler_id, (1000 + (seg.stops_count * 500)) AS price_cents, seg.dep_station, seg.arr_station, (mr.exact_departure - ((1 + (mr.res_id % 20)) || ' days')::interval) AS reserved_at, (seg.stops_count * 25) AS travel_time_minutes, st.seat_number, mr.exact_departure FROM matched_reservations mr JOIN temp_indexed_seats st  ON st.train = mr.train  AND st.seat_idx = mr.target_seat_idx JOIN temp_indexed_travelers t  ON t.traveler_idx = mr.target_traveler_idx JOIN temp_valid_segments seg  ON seg.line = mr.line  AND seg.seg_num = 1;
 
 
