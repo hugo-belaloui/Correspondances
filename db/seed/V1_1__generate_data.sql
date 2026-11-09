@@ -1,4 +1,4 @@
--- Generation en cascade, d'abord les stations et line puis le tracé avec line_stop
+-- Cascading generation, first the stations and line then the route with line_stop
 
 -- No BEGIN/COMMIT: Flyway runs each migration in its own transaction (psql: use the -1 option)
 
@@ -7,8 +7,8 @@ INSERT INTO station (name) values ('Marseille-Saint-Charles'), ('Aix-en-Provence
 
 INSERT INTO line (name) values ('L01: Marseille - Nice'), ('L02: Nice - Ventimiglia'), ('L03: Marseille - Avignon via Arles'), ('L04: Marseille - Avignon via Cavaillon'), ('L05: Marseille - Aix-en-Provence - Pertuis'), ('L06: Marseille - Toulon - Hyeres'), ('L07: Cannes - Grasse'), ('L08: Avignon - Carpentras'), ('L09: Marseille - Briancon via Gap'), ('L10: Avignon - Orange'), ('L11: Miramas - Marseille via Côte Bleue'), ('L12: Toulon - Les Arcs Draguignan');
 
--- ligne ex Marseille - aix - pertuis : marseille 1, aix 2, pertuis NULL
--- virtual table declaration CTE tabeau temporaire 
+-- line ex Marseille - aix - pertuis : marseille 1, aix 2, pertuis NULL
+-- virtual table declaration CTE temp list
 WITH all_stops (line_name, station_name, position, distance) AS 
 (VALUES
 --L1
