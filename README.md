@@ -1,5 +1,29 @@
 # Correspondances
 
+The Correspondances project involves designing and implementing a complete overhaul of a regional railway network's ticketing system.
+
+Although the network is modest in size (around thirty stations and a dozen lines), the platform must be capable of handling hundreds of thousands of annual reservations without performance degradation.
+
+The goal of this project goes beyond a simple CRUD application on a few tables; it focuses on achieving professional-grade scalability across three core pillars:
+
+- Formal Modeling: Translating a complex railway domain into a rigorous data model.
+- Database Migration: Managing database schema and data evolution in production (with existing data) without dropping and recreating the database.
+- Performance and Optimization: Analyzing and optimizing query execution times on large datasets (over 500,000 reservations).  
+
+## Project Structure
+
+```text
+Correspondances/
+├── .github/              # GitHub CI
+├── .vscode/              # VSCode settings
+├── db/                   # Volume generation scripts and SQL queries
+├── docs/                 # Conceptual, Logical, Physical models, UML & performance reports
+├── src/                  # Spring Boot project, entities, repositories, and migrations
+├── .gitignore            # Java gitignore
+├── LICENSE               # MIT License
+└── README.md             # Project documentation (this file)
+```
+
 ## Dependencies and quick start
 
 ### Dependencies
@@ -14,7 +38,6 @@ In your SQL CLI or UI, connected to the default `postgres` database, run:
 ```sql
 CREATE DATABASE correspondances;
 ```
-
 
 ### 2. Set your credentials
 
