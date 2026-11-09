@@ -24,6 +24,11 @@ Correspondances/
 └── README.md             # Project documentation (this file)
 ```
 
+## Documentation 
+
+- [Data Architecture Decision Note](/docs/data-architecture-decision-note.md)
+- [SQL Optimization and N+1 problem resolution](/docs/sql_optimization_and_n_1_problem_resolution.md)
+
 ## Dependencies and quick start
 
 ### Dependencies
